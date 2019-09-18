@@ -6,10 +6,11 @@ Forecasting intermittent time series has been challenging. Classical methods suc
 
 ## Current state of research
 
-Here we summarize the relevant researches to date.
+Here we summarize the relevant research to date.
 
-#### Croston type method
-Croston et. al. (1972) proposed an innovative method to forecast intermittent time series. Specifically, the raw series is decomposed into two time series: that of the event (non-zero observation), and the time between successive events. Each of these series are non-intermittent, thus allowing classical forecast methods to be applied. After this, all that is left is to recombine the forecasts from both time series to produce the actual forecast. Since Croston's, variants have been proposed which correct the bias in the original method (Syntetos & Boylan (2001); Kostenkov & Hyndman (2005)). These methods do not provide interval estimate (because there is no distributional assumption) but they are nonetheless useful in practice.
+#### Croston's method
+
+Croston et. al. (1972) proposed an innovative method to forecast intermittent time series. Specifically, the raw series is decomposed into two time series: that of the non-zero observations, and the time between successive non-zero observations. Each of these series contains only positive values, thus potentially allowing standard forecasting methods to work. Then the  forecasts from both constructed time series are recombined to produce forecasts on the original time series. Since Croston, several variants have been proposed including Syntetos & Boylan (2001) and Shenstone and Hyndman (2005).
 
 #### INGARCH
 An example regression approach to this problem is the INGARCH type model (Ferland et. al. 2006). Noting that most often intermittent series are time series of count, one can use generalized linear model (possison or negative binomial family) to model such data. The glm framework opens the door for regression against covariates, although in the time series setting these covariates are typically lagged version of the observation or parameter, and ARMA type error.
