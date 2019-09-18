@@ -2,17 +2,25 @@
 
 # Improving Intermittent Time Series Forecast by Pooling Information Across Groups
 
-Forecasting intermittent time series has been challenging. Classical methods such as exponential smoothing or arima, and even dedicated models such as Croston's method (1972) often struggle to produce forecast that are  better than naive methods (e.g. using historical means, or random walk model). However, we observe that intermittent time series often (though not always) arise as part of a larger group of time series. For example, a retailer might wish to forecast the demand of each of their product at each of their store locations. Unless the product is a fast-moving item (e.g. milk), these series will typically be intermittent, but there will be many of them. Furthermore, while these base series often appear erratic, their aggregate (e.g. the demand of a product at the national level) often display modellable signal. We believe we can exploit these kind of relationship (i.e. pool information) to create better forecast.
+Forecasting intermittent time series has been challenging. Classical methods such as exponential smoothing or ARIMA models do not handle the count nature of the series, and the consequential heteroscedasicity, while dedicated models such as Croston's (1972) method often struggle to produce forecast that are better than simple methods (e.g. using historical means, or a random walk model). However, we observe that intermittent time series often (though not always) arise as part of a larger group of time series. For example, a retailer might wish to forecast the demand of each of their products at each of their store locations. Unless the product is a fast-moving item (e.g. milk), these series will typically be intermittent, but there will be many of them. Furthermore, while these base series often appear erratic, their aggregate (e.g., the demand of a product at the national level) often display sufficiently strong signal to develop good forecasting models. We believe we can exploit the hierarchical nature of this problem in order to create better forecasts.
 
 ## Current state of research
 
-Here we summarize the relevant researches to date.
+Here we summarize the relevant research to date.
 
-#### Croston type method
-Croston et. al. (1972) proposed an innovative method to forecast intermittent time series. Specifically, the raw series is decomposed into two time series: that of the event (non-zero observation), and the time between successive events. Each of these series are non-intermittent, thus allowing classical forecast methods to be applied. After this, all that is left is to recombine the forecasts from both time series to produce the actual forecast. Since Croston's, variants have been proposed which correct the bias in the original method (Syntetos & Boylan (2001); Kostenkov & Hyndman (2005)). These methods do not provide interval estimate (because there is no distributional assumption) but they are nonetheless useful in practice.
+#### Croston's method
+
+Croston et. al. (1972) proposed an innovative method to forecast intermittent time series. Specifically, the raw series is decomposed into two time series: that of the non-zero observations, and the time between successive non-zero observations. Each of these series contains only positive values, thus potentially allowing standard forecasting methods to work. Then the  forecasts from both constructed time series are recombined to produce forecasts on the original time series. Since Croston, several variants have been proposed including Syntetos & Boylan (2001) and Shenstone and Hyndman (2005).
 
 #### INGARCH
-An example regression approach to this problem is the INGARCH type model (Ferland et. al. 2006). Noting that most often intermittent series are time series of count, one can use generalized linear model (possison or negative binomial family) to model such data. The glm framework opens the door for regression against covariates, although in the time series setting these covariates are typically lagged version of the observation or parameter, and ARMA type error.
+
+Another approach to this problem is the INGARCH model (Ferland et al., 2006). Noting that most intermittent series are time series of counts, one can use a generalized linear model (Poisson or negative binomial family) to model such data. The GLM framework opens the door for regression against covariates, although in the time series setting these covariates are typically lagged versions of the observation or parameter, and ARMA type error.
+
+#### INAR and related models
+
+#### GLARMA models
+
+#### Non-Gaussian state space models
 
 #### Hierarchical times series
 While Croston's and INGARCH type model attempt to extract as much information from the time series itself, hierarchical time series seek to borrow strength from neighbouring series. Hyndman et. al. (2011) and Wickramasuriya et. al. (2019) proposed regression based method to reconcile the forecasts in the hierarchy, and these methods in theory also improve the forecast. Athanasopolous et. al. (2016) applied the same method but to temporal hierarchy (aggregate) instead and also reported gain in forecast accuracy. 
