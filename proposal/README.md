@@ -13,7 +13,14 @@ Here we summarize the relevant research to date.
 Croston et. al. (1972) proposed an innovative method to forecast intermittent time series. Specifically, the raw series is decomposed into two time series: that of the non-zero observations, and the time between successive non-zero observations. Each of these series contains only positive values, thus potentially allowing standard forecasting methods to work. Then the  forecasts from both constructed time series are recombined to produce forecasts on the original time series. Since Croston, several variants have been proposed including Syntetos & Boylan (2001) and Shenstone and Hyndman (2005).
 
 #### INGARCH
-An example regression approach to this problem is the INGARCH type model (Ferland et. al. 2006). Noting that most often intermittent series are time series of count, one can use generalized linear model (possison or negative binomial family) to model such data. The glm framework opens the door for regression against covariates, although in the time series setting these covariates are typically lagged version of the observation or parameter, and ARMA type error.
+
+Another approach to this problem is the INGARCH model (Ferland et al., 2006). Noting that most intermittent series are time series of counts, one can use a generalized linear model (Poisson or negative binomial family) to model such data. The GLM framework opens the door for regression against covariates, although in the time series setting these covariates are typically lagged versions of the observation or parameter, and ARMA type error.
+
+#### INAR and related models
+
+#### GLARMA models
+
+#### Non-Gaussian state space models
 
 #### Hierarchical times series
 While Croston's and INGARCH type model attempt to extract as much information from the time series itself, hierarchical time series seek to borrow strength from neighbouring series. Hyndman et. al. (2011) and Wickramasuriya et. al. (2019) proposed regression based method to reconcile the forecasts in the hierarchy, and these methods in theory also improve the forecast. Athanasopolous et. al. (2016) applied the same method but to temporal hierarchy (aggregate) instead and also reported gain in forecast accuracy. 
