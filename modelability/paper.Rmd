@@ -1,0 +1,86 @@
+---
+title: "Forecastibility of group of intermittent time series"
+author:
+- familyname: Chia
+  othernames: Kohleth
+  address: University of Monash\newline Melbourne
+  email: placeholder@gmail.com
+  correspondingauthor: true
+- familyname: Khan
+  othernames: Genghis
+  address: Mongolian Institute
+abstract: "A brief summary of our ideas"
+keywords: "blah, blah"
+wpnumber: no/yr
+jelcodes: C10,C14,C22
+blind: false
+cover: true
+toc: false
+bibliography: ../../library.bib
+biblio-style: authoryear-comp
+output:
+  MonashEBSTemplates::workingpaper:
+    fig_caption: yes
+    fig_height: 5
+    fig_width: 8
+    includes:
+      in_header: preamble.tex
+    keep_tex: yes
+    number_sections: yes
+    citation_package: biblatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, cache=TRUE, messages=FALSE, warning=FALSE)
+# Make sure you have the latest version of rmarkdown and bookdown
+#devtools::install_github("rstudio/rmarkdown")
+#devtools::install_github("rstudio/bookdown")
+library(ggplot2)
+```
+
+
+# Introduction (put lit review here)
+
+## Statistics related to the Kolmogorov (-Sinai) Entropy
+The definition of Kolmogorov entropy can be expressed as two different limits. First, let $\vec{X}_n=\{X_i\}_{i=1\ldots n}$ denote our time series (variable) of length $n$. Let its probability density be $f_{\vec{X}_n}(\vec{x}_n)$. Then the Shannon entropy [-@Shannon1948] of the series $\vec{X}_n$ (sometimes called Block entropy) is defined as:
+$$H_n=-\sum_{\vec{x}_n}f_{\vec{X}_n}(\vec{x}_n)\ln f_{\vec{X}_n}(\vec{x}_n)$$
+A related quantity is the entropy rate, defined as
+$$\widetilde{H_n}=\lim_{n\rightarrow\infty} H_n/n$$
+The Kolmogorov entropy is usually defined as the limit of the entropy differentials, i.e.
+$$h=\lim_{n\rightarrow\infty}(H_{n}-H_{n-1})$$
+which coincides with the definition of entropy rate (if both limits exist). i.e. 
+$$h=\widetilde{H_n}=\lim_{n\rightarrow\infty}(H_{n+1}-H_{n})=\lim_{n\rightarrow\infty} H_n/n$$
+In information theoretic terms, $h$ can be thought of as the limit (as $n$ approaches infinity) of the amount of new information (surprise) we received at time $n$, given we already observe the series up to time $n-1$. Intuitively, if the time series is absolutely predictable (deterministic), knowing what happen up to time $n-1$ would allow us to predict what happens at time $n$. Therefore a highly predictable time series would have a low $h$, and vice versa.
+
+However, computing $h$ is very difficult. Thus, @Grassberger1983 proposed the $K_2$ statistics as an alternative. $K_2$ is essentially the second order Renyi entropy which can be shown to be a lower bound for $h$. To explain their formulation, we need to define a few more quantities first.
+Recall that our observed time series of length $n$ is $\vec{x}_n=\{x_i\}_{i=1\ldots n}$. Let $\vec{x}^{(m)}(i)$ denote the subsequence of $\vec{x}_n$ of length $m$ which starts from $x_i$. For example, $\vec{x}^{(3)}(2)=\{x_2,x_3,x_4\}$. Then for a given subsequence length $m$ and tolerance $r$, we say $\vec{x}^{(m)}(j)$ matches $\vec{x}^{(l)}(i)$ if $d(\vec{x}^{(m)}(j),\vec{x}^{(m)}(j))<r$ for some metric $d$ (e.g. Euclidean distance, max norm). 
+
+Next, we start counting the number of matches. Let
+$$C^{L_2}_i(m,r)=\frac{1}{n}\left[\# j: ||\vec{x}^{(m)}(i)-\vec{x}^{(m)}(j)||_2<r\right]$$
+Then $C^{L_2}_i(m,r)$ is essentially the empirical probability that a subsequence $\vec{x}^{(m)}(j)$ of length $m$ will match $\vec{x}^{(m)}(i)$ under the $L_2$ norm. Let the limit of its average over $i$ to be $C^{L_2}(m,r)=\lim_{n\rightarrow\infty}\frac{1}{n}\sum_i C^{L_2}_i(m,r)$ (this quantity is also known as the correlation integral in chaos theory), @Grassberger1983 shows that 
+$$\lim_{m\rightarrow\infty,r\rightarrow0}\ln\frac{C^{L_2}(m,r)}{C^{L_2}(m+1,r)}=K_2$$
+Armed with the building block $C^{L_2}_i(m,r)$, @Eckmann1985 constructed a different estimating equation. Define $\Phi(m,r)=\frac{1}{n}\sum_i\log C^{L_\infty}_i(m,r)$, which is the average log probability of a match under the max norm, then @Eckmann1985 showed that,
+$$\lim_{m\rightarrow\infty,r\rightarrow0,n\rightarrow\infty}\left[\Phi(m+1,r)-\Phi(m,r)\right]=h$$
+The limit in the above equation renders it difficult to use in a finite sample situation. However, @Pincus1991 nonetheless saw the quantity $\Phi(m+1,r)-\Phi(m,r)$ to be of interest, and define Approximate Entropy (ApEn) to be 
+$$\text{ApEn}(m,r,n)=-\left[\Phi(m+1,r)-\Phi(m,r)\right]$$
+Note that $C^{L_\infty}_i(m+1,r)\leq C^{L_\infty}_i(m,r)$, therefore $\Phi(m+1,r)\leq \Phi(m,r)$, so ApEn is always non-negative.
+
+ApEn is arguably the first useful statisics that one can apply to a finite sample time series. However, it suffers from several shortcomings [@Richman2000], such as its dependences on the length of the observed time series, its bias, and its lack of relative inconsistency (i.e. contradictory results might be obtained by using different window width in the computation). 
+
+In light of this, @Richman2000 proposed a modification of ApEn, termed Sample entropy. Let $A(m+1,r)$ be the total number of matches among all $(\vec{x}^{(m+1)}(i),\vec{x}^{(m+1)}(j))$ pair under the max norm with tolerance $r$, excluding self-match (i.e. $A(m+1,r)=C^{L_\infty}(m+1,r)-1$). And define $B(m,r)$ similarly, with the extra condition that the last subsequence (the subseuquence whose last component is $x_n$, i.e. $\vec{x}^{(m)}(n-m+1)$) is excluded from the calculation. Then, the Sample entropy is defined as
+$$\text{SampEn}(m,r,n)=-\log\frac{A(m+1,r)}{B(m,r)}$$
+The reason why $B(m,r)$ needs to exclude the last subsequence is so that both $A(m+1,r)$ and $B(m,r)$ will have the same number of subsequences in them. SampEn is simply the negative logarithm of the empirical probability that two subsequences of length $m+1$ will match, given that their shorter versions (of length $m$) already matched. The R package **pracma** [@Borchers2019] implements this algorithm.
+
+
+
+
+
+# Issue with intermittent time series
+
+# A new measure
+
+# Simulation and Real Data Experiments
+
+# Extension for group of time series
+
+# Conclusion
