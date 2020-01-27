@@ -1,0 +1,21 @@
+---
+title: "Permutation Entropy"
+output: pdf_document
+bibliography: ../../../library.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+permuEn
+
+-problem: discard amplitude value
+-problem: can't handle equal value
+
+WPE: weight each count by the variance of that subsequence
+AAPE: weight each count by an weighted average between the mean and the average difference (between adjacent value) of that subsequence
+Modified  (Bian 2012): assign same symbol for equal value. Gave table for maximum entropy for M=3-7
+IAUQ: Do uniform quantization first before doing normal entropy calculation.
+
+# References
