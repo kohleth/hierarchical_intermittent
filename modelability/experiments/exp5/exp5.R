@@ -5,7 +5,7 @@ library(foreach)
 library(doParallel)
 library(itertools)
 library(pracma)
-source('utils.R')
+source('modelability/experiments/exp5/utils.R')
 the_dir=rstudioapi::askForPassword(prompt = 'the_dir')
 
 X0=read_csv(file.path(the_dir,'all_ts.csv'),col_types = cols(i=col_integer(),
@@ -111,8 +111,10 @@ registerDoParallel(cl)
 X$spectral_en=myfeature(X$ts,tsfeatures::entropy)
 X$sample_en=myfeature(X$ts,pracma::sample_entropy)
 X$permu_en=myfeature(X$ts,permu_en,'dplyr')
-X$lumpiness=myfeature(X$ts,tsfeatures::lumpiness)
-X$stability=myfeature(X$ts,tsfeatures::stability)
+X$lumpiness=myfeature(X$ts,function(x)tsfeatures::lumpiness(x,width=4)) ## monthly window
+X$stability=myfeature(X$ts,function(x)tsfeatures::stability(x,width=4)) ## monthly window
+X$fc_surprise_dist_5_2_upd_mean=myfeature(X$ts,fc_surprise_dist_upd,.export=c('sb_coarsegrain'))
+X$sy_trend_meanYC=myfeature(X$ts,sy_trend_meanYC)
 
 Xfeatures=X%>%
   mutate(p0=purrr::map_dbl(ts,~mean(.==0,na.rm=T)),
@@ -124,7 +126,7 @@ Xfeatures=X%>%
 
 stopCluster(cl)
 
-# saveRDS(Xfeatures%>%select(-ts),file.path(the_dir,'X_with_features.rds'))
+saveRDS(Xfeatures%>%select(-ts),file.path(the_dir,'X_with_features.rds'))
 
 ## partykit--------------------------------------------------------
 X=readRDS(file.path(the_dir,'all_ts_tibble.rds'))
@@ -133,20 +135,26 @@ Xfeatures=readRDS(file.path(the_dir,'X_with_features.rds'))
 
 Y=X%>%
   inner_join(Xfc)%>%
-  inner_join(Xfeatures)
+  inner_join(Xfeatures)%>%
+  add_count(naive_better)%>%
+  mutate(w=1/n,n=NULL)
+  
 
 saveRDS(Y,file.path(the_dir,'Y.rds'))
 library(partykit)
 mytree=ctree(factor(naive_better)~.,
-             data=Y%>%filter(p0<1,is.finite(sample_en))%>%select(naive_better,spectral_en:per),
+             data=Y%>%filter(p0<1,is.finite(sample_en))%>%select(naive_better,spectral_en:sy_trend_meanYC),
              na.action=na.omit,
              control=ctree_control(minbucket = 100,
                                    maxdepth=4,
                                    alpha=0.01))
 
 mytree_no_ratio=ctree(factor(naive_better)~.,
-             data=Y%>%filter(p0<1,is.finite(sample_en))%>%select(naive_better,spectral_en:permu_en,p0,in_sd,in_0fc_rmse),
+             data=Y%>%filter(p0<1,is.finite(sample_en))%>%select(naive_better,spectral_en:permu_en,p0,in_sd,in_0fc_rmse,fc_surprise_dist_5_2_upd_mean,sy_trend_meanYC),
              na.action=na.omit,
              control=ctree_control(minbucket = 100,
                                    maxdepth=4,
                                    alpha=0.01))
+
+plot(mytree,tp_args=list(id=FALSE))
+plot(mytree_no_ratio,tp_args=list(id=FALSE))
